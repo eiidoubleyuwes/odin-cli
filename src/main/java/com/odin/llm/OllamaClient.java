@@ -18,8 +18,7 @@ public class OllamaClient implements LLMClient {
     private static final String OLLAMA_API_URL = "http://localhost:11434/api/generate";
     private static final MediaType JSON = MediaType.get("application/json");
     private static final int MAX_RETRIES = 3;
-    private static final int TIMEOUT_SECONDS = 180;
-    
+    private static final int TIMEOUT_SECONDS = 180;    
     private final OkHttpClient client;
     private final ObjectMapper mapper;
     private final String model;
