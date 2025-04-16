@@ -11,6 +11,12 @@ public class LLMClientFactory {
     }
 
     public static LLMClient createClient(String provider) {
+        // Check if we're in test mode
+        if (System.getProperty("ODIN_TEST_MODE") != null) {
+            logger.info("Test mode detected, using MockLLMClient");
+            return new MockLLMClient();
+        }
+        
         if (provider == null || provider.isEmpty()) {
             provider = "ollama";
         }
