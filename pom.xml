@@ -88,8 +88,9 @@
 
     <distributionManagement>
         <repository>
-            <id>local-repository</id>
-            <url>file://${user.home}/.m2/repository</url>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/eiidoubleyuwes/odin-cli</url>
         </repository>
     </distributionManagement>
 
