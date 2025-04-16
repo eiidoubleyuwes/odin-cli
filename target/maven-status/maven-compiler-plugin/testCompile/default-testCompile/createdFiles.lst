@@ -1,0 +1,8 @@
+com/odin/detection/StackDetectorTest.class
+com/odin/cli/OdinCommandTest.class
+com/odin/generators/TerraformGeneratorTest.class
+com/odin/llm/OllamaClientTest.class
+com/odin/generators/GitHubActionsGeneratorTest.class
+com/odin/generators/DockerfileGeneratorTest.class
+com/odin/llm/LLMClientTest.class
+com/odin/generators/DockerComposeGeneratorTest.class

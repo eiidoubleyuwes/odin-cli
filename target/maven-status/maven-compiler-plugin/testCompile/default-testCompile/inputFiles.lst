@@ -1,0 +1,8 @@
+/home/mwamba/Odin/src/test/java/com/odin/llm/LLMClientTest.java
+/home/mwamba/Odin/src/test/java/com/odin/detection/StackDetectorTest.java
+/home/mwamba/Odin/src/test/java/com/odin/cli/OdinCommandTest.java
+/home/mwamba/Odin/src/test/java/com/odin/generators/TerraformGeneratorTest.java
+/home/mwamba/Odin/src/test/java/com/odin/generators/GitHubActionsGeneratorTest.java
+/home/mwamba/Odin/src/test/java/com/odin/llm/OllamaClientTest.java
+/home/mwamba/Odin/src/test/java/com/odin/generators/DockerComposeGeneratorTest.java
+/home/mwamba/Odin/src/test/java/com/odin/generators/DockerfileGeneratorTest.java
