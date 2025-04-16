@@ -6,3 +6,4 @@
 /home/mwamba/Odin/src/test/java/com/odin/llm/OllamaClientTest.java
 /home/mwamba/Odin/src/test/java/com/odin/generators/DockerComposeGeneratorTest.java
 /home/mwamba/Odin/src/test/java/com/odin/generators/DockerfileGeneratorTest.java
+/home/mwamba/Odin/src/test/java/com/odin/llm/MockLLMClient.java

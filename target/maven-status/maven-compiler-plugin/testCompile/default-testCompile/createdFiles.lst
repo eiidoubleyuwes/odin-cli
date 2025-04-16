@@ -1,3 +1,4 @@
+com/odin/llm/MockLLMClient.class
 com/odin/detection/StackDetectorTest.class
 com/odin/cli/OdinCommandTest.class
 com/odin/generators/TerraformGeneratorTest.class

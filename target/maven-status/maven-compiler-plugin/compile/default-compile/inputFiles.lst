@@ -1,5 +1,6 @@
 /home/mwamba/Odin/src/main/java/com/odin/detection/StackDetector.java
 /home/mwamba/Odin/src/main/java/com/odin/detection/Stack.java
+/home/mwamba/Odin/src/main/java/com/odin/llm/MockLLMClient.java
 /home/mwamba/Odin/src/main/java/com/odin/cli/OdinCommand.java
 /home/mwamba/Odin/src/main/java/com/odin/explainer/Explainer.java
 /home/mwamba/Odin/src/main/java/com/odin/generators/DockerComposeGenerator.java

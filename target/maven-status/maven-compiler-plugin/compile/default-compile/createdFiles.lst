@@ -17,6 +17,7 @@ com/odin/model/Stack$Builder.class
 com/odin/generators/TerraformGenerator.class
 com/odin/model/Stack.class
 com/odin/detection/StackDetector.class
+com/odin/llm/MockLLMClient.class
 com/odin/Odin.class
 com/odin/cli/OdinCommand$ComposeCommand.class
 com/odin/generators/ConcurrentGenerator.class
