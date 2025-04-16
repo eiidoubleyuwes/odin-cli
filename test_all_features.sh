@@ -8,13 +8,13 @@ JAVA_APP_DIR="${TEST_DIR}/java_spring_app"
 
 
 # Set up output directories
-PYTHON_OUTPUT_DIR="${TEST_DIR}/python_app_output"
+PYTHON_OUTPUT_DIR="${TEST_DIR}/python_app"
 NODE_OUTPUT_DIR="${TEST_DIR}/node_app_output"
 JAVA_OUTPUT_DIR="${TEST_DIR}/java_app_output"
 
-# Clean up previous test artifacts
-echo "Cleaning up previous test artifacts..."
-rm -rf "${PYTHON_OUTPUT_DIR}" "${NODE_OUTPUT_DIR}" "${JAVA_OUTPUT_DIR}" "${RUST_OUTPUT_DIR}"
+## Clean up previous test artifacts
+#echo "Cleaning up previous test artifacts..."
+#rm -rf "${PYTHON_OUTPUT_DIR}" "${NODE_OUTPUT_DIR}" "${JAVA_OUTPUT_DIR}" "${RUST_OUTPUT_DIR}"
 
 # Function to run tests with a specific provider
 run_tests() {
@@ -23,10 +23,10 @@ run_tests() {
     
     # Test Python app
     echo "Testing Python app..."
-    java -jar target/odin-1.0-SNAPSHOT.jar all "${PYTHON_APP_DIR}" -o "${PYTHON_OUTPUT_DIR}_${provider}" --provider "${provider}" --cloud aws
+    java -jar target/odin-1.0-SNAPSHOT.jar all "${PYTHON_APP_DIR}" -o "${PYTHON_OUTPUT_DIR}" --provider "${provider}" --cloud aws
 
     # Test Node.js app
-    echo "Testing Node.js app..."
+#    echo "Testing Node.js app..."
     java -jar target/odin-1.0-SNAPSHOT.jar all "${NODE_APP_DIR}" -o "${NODE_OUTPUT_DIR}_${provider}" --provider "${provider}" --cloud aws
 
 #    # Test Java app

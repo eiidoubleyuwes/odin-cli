@@ -1,0 +1,101 @@
+name: Security Checks
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sundays at 00:00 UTC
+
+jobs:
+  security_scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Dependency Scanning with Bandit
+        uses: pyupio/bandit-action@v2
+        with:
+          recursive: true
+          format: txt
+          output: bandit_report.txt
+
+      - name: Upload Bandit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Bandit Report
+          path: bandit_report.txt
+
+      - name: Static Analysis Security Testing (SAST) with SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to trigger pull request decoration
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.sources=.
+            -Dsonar.python.coverage.reportPaths=coverage.xml
+
+      - name: Build and Scan Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: your-image-name:latest
+          outputs: |
+            type=docker-image,dest=image.tar
+
+      - name: Trivy Container Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: image.tar
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: 'true'
+          severity: 'CRITICAL,HIGH'
+
+      - name: AWS Security Checks with Checkov
+        id: checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          framework: cloudformation
+          soft_fail: true
+          quiet: true
+
+      - name: Upload Checkov Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Checkov Report
+          path: results.sarif
+          retention-days: 7
+
+      - name: AWS Compliance Scan with AWS Inspector
+        if: always()
+        run: |
+          echo "AWS Inspector compliance scan is a placeholder. Implement the actual scan using AWS CLI or SDK."
+          echo "This step requires proper AWS credentials and configuration."
+          echo "Example: aws inspector start-assessment-run --assessment-template-arn <assessment-template-arn> --assessment-run-name <assessment-run-name>"
+
+      - name: Fail the workflow if Checkov finds errors
+        if: steps.checkov.outcome == 'failure'
+        run: |
+          echo "Checkov found security issues. Failing the workflow."
+          exit 1

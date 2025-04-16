@@ -247,21 +247,12 @@ public class StackDetector {
     private String detectFramework(List<Path> files) {
         // Detect framework based on dependencies and imports
         for (Path file : files) {
-            String fileName = file.getFileName().toString().toLowerCase();
             try {
                 String content = Files.readString(file);
-                if (fileName.equals("package.json") && content.contains("express")) {
-                    return "nodejs";
-                } else if (fileName.equals("requirements.txt")) {
-                    if (content.contains("Flask")) {
-                        return "flask";
-                    } else if (content.contains("Django")) {
-                        return "django";
+                for (Map.Entry<String, String> entry : FRAMEWORK_PATTERNS.entrySet()) {
+                    if (Pattern.compile(entry.getValue()).matcher(content).find()) {
+                        return entry.getKey();
                     }
-                } else if (fileName.equals("pom.xml") && content.contains("spring-boot")) {
-                    return "spring";
-                } else if (fileName.equals("go.mod") && content.contains("gin-gonic/gin")) {
-                    return "gin";
                 }
             } catch (IOException e) {
                 logger.warn("Failed to read file: " + file, e);
@@ -271,154 +262,123 @@ public class StackDetector {
     }
 
     /**
-     * Detects the build tool used in the project.
-     * Looks for common build tool configuration files.
+     * Detects build tools used in the project.
+     * Looks for common build configuration files like pom.xml, build.gradle, etc.
      * 
      * @param files List of project files
      * @return The detected build tool name
      */
     private String detectBuildTool(List<Path> files) {
-        // Detect build tool based on build files
         for (Path file : files) {
-            String fileName = file.getFileName().toString().toLowerCase();
-            if (fileName.equals("package.json")) {
-                return "npm";
-            } else if (fileName.equals("requirements.txt")) {
-                return "pip";
-            } else if (fileName.equals("pom.xml")) {
-                return "maven";
-            } else if (fileName.equals("go.mod")) {
-                return "go";
+            String fileName = file.getFileName().toString();
+            for (Map.Entry<String, String> entry : BUILD_TOOL_PATTERNS.entrySet()) {
+                if (Pattern.compile(entry.getValue()).matcher(fileName).find()) {
+                    return entry.getKey();
+                }
             }
         }
         return "";
     }
 
     /**
-     * Detects databases used in the project.
-     * Analyzes configuration files and dependencies.
+     * Detects databases referenced in the project.
+     * Analyzes configuration files and code for database connection strings and dependencies.
      * 
      * @param files List of project files
-     * @return List of detected database types
+     * @return List of detected database names
      */
     private List<String> detectDatabases(List<Path> files) {
-        List<String> databases = new ArrayList<>();
+        Set<String> detectedDatabases = new HashSet<>();
         for (Path file : files) {
             try {
                 String content = Files.readString(file);
-                if (content.contains("mongodb") || content.contains("mongoose")) {
-                    databases.add("mongodb");
-                }
-                if (content.contains("postgresql") || content.contains("psycopg2")) {
-                    databases.add("postgresql");
-                }
-                if (content.contains("mysql")) {
-                    databases.add("mysql");
-                }
-                if (content.contains("redis")) {
-                    databases.add("redis");
-                }
-                if (content.contains("sqlalchemy")) {
-                    databases.add("sqlalchemy");
+                for (Map.Entry<String, String> entry : DATABASE_PATTERNS.entrySet()) {
+                    if (Pattern.compile(entry.getValue()).matcher(content).find()) {
+                        detectedDatabases.add(entry.getKey());
+                    }
                 }
             } catch (IOException e) {
                 logger.warn("Failed to read file: " + file, e);
             }
         }
-        return databases;
+        return new ArrayList<>(detectedDatabases);
     }
 
     /**
-     * Detects port configurations in the project.
-     * Looks for port settings in configuration files.
+     * Detects ports used in the project configuration.
+     * Analyzes configuration files for port definitions and defaults.
      * 
      * @param files List of project files
-     * @return Map of service names to port numbers
+     * @return Map of service names to their detected ports
      */
     private Map<String, Integer> detectPorts(List<Path> files) {
         Map<String, Integer> ports = new HashMap<>();
-        ports.put("app", 8080); // Default app port
-        
-        for (Path file : files) {
-            try {
-                String content = Files.readString(file);
-                // Look for port configurations in various file types
-                if (content.contains("PORT=") || content.contains("port=")) {
-                    // Simple port detection - could be enhanced
-                    ports.put("app", 3000);
-                }
-                if (content.contains("MONGODB_PORT=")) {
-                    ports.put("mongodb", 27017);
-                }
-                if (content.contains("POSTGRES_PORT=")) {
-                    ports.put("postgresql", 5432);
-                }
-                if (content.contains("MYSQL_PORT=")) {
-                    ports.put("mysql", 3306);
-                }
-                if (content.contains("REDIS_PORT=")) {
-                    ports.put("redis", 6379);
-                }
-            } catch (IOException e) {
-                logger.warn("Failed to read file: " + file, e);
+        String framework = detectFramework(files);
+        List<String> databases = detectDatabases(files);
+
+        // Set default framework port
+        if (DEFAULT_APP_PORTS.containsKey(framework)) {
+            ports.put("app", DEFAULT_APP_PORTS.get(framework));
+        } else {
+            ports.put("app", 8080); // Default fallback port
+        }
+
+        // Set database ports
+        for (String db : databases) {
+            if (DEFAULT_DB_PORTS.containsKey(db)) {
+                ports.put(db, DEFAULT_DB_PORTS.get(db));
             }
         }
+
         return ports;
     }
 
     /**
-     * Detects cloud providers used in the project.
-     * Analyzes configuration files and dependencies.
+     * Detects cloud providers referenced in the project.
+     * Analyzes configuration files and code for cloud service integrations.
      * 
      * @param files List of project files
-     * @return List of detected cloud providers
+     * @return List of detected cloud provider names
      */
     private List<String> detectCloudProviders(List<Path> files) {
-        List<String> providers = new ArrayList<>();
+        Set<String> providers = new HashSet<>();
         for (Path file : files) {
             try {
                 String content = Files.readString(file);
-                if (content.contains("aws") || content.contains("AWS")) {
-                    providers.add("aws");
-                }
-                if (content.contains("gcp") || content.contains("google cloud")) {
-                    providers.add("gcp");
-                }
-                if (content.contains("azure")) {
-                    providers.add("azure");
+                for (Map.Entry<String, String> entry : CLOUD_PATTERNS.entrySet()) {
+                    if (Pattern.compile(entry.getValue()).matcher(content).find()) {
+                        providers.add(entry.getKey());
+                    }
                 }
             } catch (IOException e) {
                 logger.warn("Failed to read file: " + file, e);
             }
         }
-        return providers;
+        return new ArrayList<>(providers);
     }
 
     /**
      * Detects testing frameworks used in the project.
-     * Analyzes test files and dependencies.
+     * Analyzes test files and build configurations for testing dependencies.
      * 
      * @param files List of project files
-     * @return List of detected testing frameworks
+     * @return List of detected testing framework names
      */
     private List<String> detectTestingFrameworks(List<Path> files) {
-        List<String> frameworks = new ArrayList<>();
+        Set<String> frameworks = new HashSet<>();
         for (Path file : files) {
-            if (!Files.exists(file) || !Files.isRegularFile(file)) {
-                continue;
-            }
             try {
                 String content = Files.readString(file);
-                for (Map.Entry<String, String> pattern : TESTING_FRAMEWORK_PATTERNS.entrySet()) {
-                    if (Pattern.compile(pattern.getValue()).matcher(content).find()) {
-                        frameworks.add(pattern.getKey());
+                for (Map.Entry<String, String> entry : TESTING_FRAMEWORK_PATTERNS.entrySet()) {
+                    if (Pattern.compile(entry.getValue()).matcher(content).find()) {
+                        frameworks.add(entry.getKey());
                     }
                 }
             } catch (IOException e) {
-                logger.warn("Failed to read file for testing framework detection: {}", file, e);
+                logger.warn("Failed to read file: " + file, e);
             }
         }
-        return frameworks;
+        return new ArrayList<>(frameworks);
     }
 
     /**

@@ -27,7 +27,7 @@
     <property name="classworlds.conf" value="/usr/share/maven/bin/m2.conf"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
     <property name="stdout.encoding" value="UTF-8"/>
-    <property name="java.library.path" value="/tmp/.mount_CursoroxTxeq/usr/lib/:/tmp/.mount_CursoroxTxeq/usr/lib32/:/tmp/.mount_CursoroxTxeq/usr/lib64/:/tmp/.mount_CursoroxTxeq/lib/:/tmp/.mount_CursoroxTxeq/lib/i386-linux-gnu/:/tmp/.mount_CursoroxTxeq/lib/x86_64-linux-gnu/:/tmp/.mount_CursoroxTxeq/lib/aarch64-linux-gnu/:/tmp/.mount_CursoroxTxeq/lib32/:/tmp/.mount_CursoroxTxeq/lib64/::/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib"/>
+    <property name="java.library.path" value="/tmp/.mount_CursorASCdt0/usr/lib/:/tmp/.mount_CursorASCdt0/usr/lib32/:/tmp/.mount_CursorASCdt0/usr/lib64/:/tmp/.mount_CursorASCdt0/lib/:/tmp/.mount_CursorASCdt0/lib/i386-linux-gnu/:/tmp/.mount_CursorASCdt0/lib/x86_64-linux-gnu/:/tmp/.mount_CursorASCdt0/lib/aarch64-linux-gnu/:/tmp/.mount_CursorASCdt0/lib32/:/tmp/.mount_CursorASCdt0/lib64/::/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib"/>
     <property name="maven.conf" value="/usr/share/maven/conf"/>
     <property name="jdk.debug" value="release"/>
     <property name="java.class.version" value="65.0"/>
@@ -43,7 +43,7 @@
     <property name="java.class.path" value="/usr/share/maven/boot/plexus-classworlds-2.x.jar"/>
     <property name="java.vm.specification.version" value="21"/>
     <property name="sun.arch.data.model" value="64"/>
-    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher clean package"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher clean install"/>
     <property name="java.home" value="/usr/lib/jvm/java-21-openjdk-amd64"/>
     <property name="user.language" value="en"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>

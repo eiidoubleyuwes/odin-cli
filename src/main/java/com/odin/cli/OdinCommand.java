@@ -139,11 +139,16 @@ public class OdinCommand implements Callable<Integer> {
         @Override
         public Integer call() throws IOException {
             logger.info("Generating docker-compose.yml");
+            
+            // Create output directory if it doesn't exist
+            Path outputPath = outputDir != null ? outputDir : projectDir.resolve("docker");
+            Files.createDirectories(outputPath);
+            
             StackDetector detector = new StackDetector();
             Stack stack = detector.detectStack(projectDir);
             
             DockerComposeGenerator generator = new DockerComposeGenerator(provider);
-            generator.generateDockerCompose(stack, outputDir.resolve("docker-compose.yml"));
+            generator.generateDockerCompose(stack, outputPath);
             return 0;
         }
     }

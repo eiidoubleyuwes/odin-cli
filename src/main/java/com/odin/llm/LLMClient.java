@@ -18,24 +18,22 @@ public interface LLMClient {
      * @throws IOException if there's a network or API error
      */
     String generateText(String prompt) throws IOException;
+    
+    /**
+     * Generates text based on the provided prompt and parameters.
+     * 
+     * @param prompt The input text to send to the LLM
+     * @param parameters Additional parameters for the LLM
+     * @return The generated response from the LLM
+     */
     String generateText(String prompt, Map<String, Object> parameters);
+    
+    /**
+     * Generates infrastructure code based on the provided prompt.
+     * 
+     * @param prompt The input text describing the infrastructure requirements
+     * @param type The type of infrastructure code to generate (e.g., "dockerfile", "docker-compose")
+     * @return The generated infrastructure code
+     */
     String generateInfrastructureCode(String prompt, String type);
 }
-
-/**
- * Factory for creating LLM client instances.
- * Supports multiple providers and handles client configuration.
- * Makes it easy to switch between different LLM backends.
- */
-class LLMClientFactory {
-
-}
-
-/**
- * Implementation of LLMClient for Ollama.
- * Communicates with a local Ollama instance for text generation.
- * Handles API requests and response parsing.
- */
-class OllamaClient implements LLMClient {
-
-} 

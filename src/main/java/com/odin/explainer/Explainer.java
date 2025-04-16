@@ -65,7 +65,14 @@ public class Explainer {
         return explainCode(content);
     }
     
-    public String explainCode(String code) {
+    /**
+     * Explains the given code using the LLM client.
+     * 
+     * @param code The code to explain
+     * @return The explanation from the LLM
+     * @throws IOException if there's an error communicating with the LLM
+     */
+    public String explainCode(String code) throws IOException {
         String prompt = String.format("""
             Explain the following code in detail:
             
