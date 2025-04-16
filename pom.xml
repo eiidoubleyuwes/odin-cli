@@ -86,6 +86,13 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>local-repository</id>
+            <url>file://${user.home}/.m2/repository</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <plugin>
