@@ -1,39 +1,22 @@
-# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
-# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
-
-name: Maven Package
+name: Publish package to GitHub Packages
 
 on:
   push:
-    branches: ['*']
-
+    branches:
+      - main
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        server-id: github
-        settings-path: ${{ github.workspace }}
-
-    - name: Build and Test with Maven
-      run: |
-        # Set test mode for mock client
-        export ODIN_TEST_MODE=true
-        # Run tests with Maven
-        mvn clean test
-        # Build package
-        mvn package -DskipTests
-
-    - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy 
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Publish package
+        run: mvn --batch-mode deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
