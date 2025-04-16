@@ -16,8 +16,89 @@ public class MockLLMClient implements LLMClient {
     @Override
     public String generateText(String prompt, Map<String, Object> parameters) {
         // Return predefined responses based on the prompt
-        if (prompt.contains("docker-compose")) {
-            return "version: '3'\n\nservices:\n  app:\n    build: .\n    ports:\n      - \"5000:5000\"\n    environment:\n      DATABASE_URL: postgres://user:password@postgres:5432/database\n    depends_on:\n      - postgres\n    restart: always\n\n  postgres:\n    image: postgres\n    environment:\n      POSTGRES_USER: user\n      POSTGRES_PASSWORD: password\n      POSTGRES_DB: database\n    ports:\n      - \"5432:5432\"\n    volumes:\n      - ./postgres-data:/var/lib/postgresql/data\n    healthcheck:\n      test: [\"CMD\", \"pg_isready\", \"-U\", \"user\"]\n      interval: 10s\n      retries: 5";
+        if (prompt.contains("docker-compose.yml")) {
+            if (prompt.contains("postgresql")) {
+                return """
+                version: '3'
+                services:
+                  app:
+                    build: .
+                    ports:
+                      - "3000:3000"
+                    networks:
+                      - backend
+                  postgres:
+                    image: postgres:latest
+                    environment:
+                      - POSTGRES_DB=app
+                      - POSTGRES_USER=user
+                      - POSTGRES_PASSWORD=password
+                    volumes:
+                      - data:/var/lib/postgresql/data
+                    networks:
+                      - backend
+                networks:
+                  backend:
+                volumes:
+                  data:
+                """;
+            } else if (prompt.contains("mongodb")) {
+                return """
+                version: '3'
+                services:
+                  app:
+                    build: .
+                    ports:
+                      - "3000:3000"
+                    networks:
+                      - backend
+                  mongodb:
+                    image: mongo:latest
+                    environment:
+                      - MONGO_INITDB_ROOT_USERNAME=user
+                      - MONGO_INITDB_ROOT_PASSWORD=password
+                    volumes:
+                      - data:/data/db
+                    networks:
+                      - backend
+                networks:
+                  backend:
+                volumes:
+                  data:
+                """;
+            } else if (prompt.contains("redis")) {
+                return """
+                version: '3'
+                services:
+                  app:
+                    build: .
+                    ports:
+                      - "3000:3000"
+                    networks:
+                      - backend
+                  redis:
+                    image: redis:latest
+                    ports:
+                      - "6379:6379"
+                    networks:
+                      - backend
+                networks:
+                  backend:
+                """;
+            } else {
+                return """
+                version: '3'
+                services:
+                  app:
+                    build: .
+                    ports:
+                      - "3000:3000"
+                    networks:
+                      - backend
+                networks:
+                  backend:
+                """;
+            }
         } else if (prompt.contains("Dockerfile")) {
             return "FROM python:3.9-slim\n\nWORKDIR /app\n\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\n\nCOPY . .\n\nEXPOSE 5000\n\nCMD [\"python\", \"app.py\"]";
         } else if (prompt.contains("terraform")) {

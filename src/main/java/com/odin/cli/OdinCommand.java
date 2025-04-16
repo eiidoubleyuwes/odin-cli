@@ -41,7 +41,8 @@ import java.util.List;
         OdinCommand.ExplainCommand.class,
         OdinCommand.ConfigCommand.class,
         OdinCommand.GitHubCommand.class,
-        OdinCommand.MonitorCommand.class
+        OdinCommand.MonitorCommand.class,
+        OdinCommand.DockerfileCommand.class
     },
     description = "Docker container monitoring and management tool"
 )
@@ -55,8 +56,8 @@ public class OdinCommand implements Callable<Integer> {
 
     @Override
     public Integer call() {
-        logger.info("Welcome to Odin! Use --help to see available commands.");
-        return 0;
+        logger.error("No command specified. Use --help to see available commands.");
+        return 1;
     }
 
     @Command(
@@ -472,6 +473,51 @@ public class OdinCommand implements Callable<Integer> {
                 Thread.currentThread().interrupt();
                 return 1;
             }
+        }
+    }
+
+    @Command(
+        name = "dockerfile",
+        description = "Generate Dockerfile for a project"
+    )
+    public static class DockerfileCommand implements Callable<Integer> {
+        @Parameters(index = "0", description = "Project root directory")
+        private Path projectDir;
+
+        @Option(names = "--provider", description = "LLM provider to use (ollama/gemini)")
+        private String provider = "ollama";
+
+        @Option(names = "--output", description = "Output directory for generated files")
+        private Path outputDir;
+
+        @Override
+        public Integer call() throws Exception {
+            if (!Files.exists(projectDir)) {
+                logger.error("Project directory does not exist: {}", projectDir);
+                return 1;
+            }
+
+            logger.info("Generating Dockerfile for project in: {}", projectDir);
+            
+            // Set provider in environment if specified
+            if (provider != null) {
+                System.setProperty("LLM_PROVIDER", provider);
+            }
+            
+            // Create output directory if it doesn't exist
+            if (outputDir != null) {
+                Files.createDirectories(outputDir);
+            } else {
+                outputDir = projectDir;
+            }
+            
+            StackDetector detector = new StackDetector();
+            Stack stack = detector.detectStack(projectDir);
+            
+            DockerfileGenerator generator = new DockerfileGenerator(provider);
+            generator.generateDockerfile(stack, outputDir);
+            
+            return 0;
         }
     }
 } 

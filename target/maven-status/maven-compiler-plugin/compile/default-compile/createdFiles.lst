@@ -26,6 +26,7 @@ com/odin/cli/OdinCommand$AllCommand.class
 com/odin/llm/GeminiClient.class
 com/odin/llm/LLMClient.class
 com/odin/generators/DockerComposeGenerator.class
+com/odin/cli/OdinCommand$DockerfileCommand.class
 com/odin/cli/OdinCommand$ExplainCommand.class
 com/odin/cli/OdinCommand$ValidateCommand.class
 com/odin/analysis/PerformanceAnalyzer.class

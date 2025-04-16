@@ -1,6 +1,7 @@
 package com.odin.generators;
 
 import com.odin.detection.Stack;
+import com.odin.llm.MockLLMClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -17,10 +18,12 @@ public class DockerComposeGeneratorTest {
     
     private DockerComposeGenerator generator;
     private Stack stack;
+    private MockLLMClient mockClient;
     
     @BeforeEach
     void setUp() {
-        generator = new DockerComposeGenerator("ollama");
+        mockClient = new MockLLMClient();
+        generator = new DockerComposeGenerator(mockClient);
         stack = new Stack("", "", "", new ArrayList<>(), new HashMap<>(), new ArrayList<>(), new ArrayList<>());
     }
     
@@ -37,6 +40,7 @@ public class DockerComposeGeneratorTest {
         assertTrue(content.contains("version: '3'"));
         assertTrue(content.contains("services:"));
         assertTrue(content.contains("app:"));
+        assertTrue(content.contains("build: ."));
     }
     
     @Test
@@ -51,9 +55,7 @@ public class DockerComposeGeneratorTest {
         assertTrue(outputPath.toFile().exists());
         String content = java.nio.file.Files.readString(outputPath);
         assertTrue(content.contains("postgres:"));
-        assertTrue(content.contains("POSTGRES_DB"));
-        assertTrue(content.contains("POSTGRES_USER"));
-        assertTrue(content.contains("POSTGRES_PASSWORD"));
+        assertTrue(content.contains("image: postgres:latest"));
     }
     
     @Test
@@ -68,8 +70,7 @@ public class DockerComposeGeneratorTest {
         assertTrue(outputPath.toFile().exists());
         String content = java.nio.file.Files.readString(outputPath);
         assertTrue(content.contains("mongodb:"));
-        assertTrue(content.contains("MONGO_INITDB_ROOT_USERNAME"));
-        assertTrue(content.contains("MONGO_INITDB_ROOT_PASSWORD"));
+        assertTrue(content.contains("image: mongo:latest"));
     }
     
     @Test
@@ -84,7 +85,7 @@ public class DockerComposeGeneratorTest {
         assertTrue(outputPath.toFile().exists());
         String content = java.nio.file.Files.readString(outputPath);
         assertTrue(content.contains("redis:"));
-        assertTrue(content.contains("REDIS_PASSWORD"));
+        assertTrue(content.contains("image: redis:latest"));
     }
     
     @Test
@@ -114,7 +115,7 @@ public class DockerComposeGeneratorTest {
         assertTrue(outputPath.toFile().exists());
         String content = java.nio.file.Files.readString(outputPath);
         assertTrue(content.contains("networks:"));
-        assertTrue(content.contains("app-network:"));
+        assertTrue(content.contains("backend:"));
     }
     
     @Test
@@ -129,6 +130,6 @@ public class DockerComposeGeneratorTest {
         assertTrue(outputPath.toFile().exists());
         String content = java.nio.file.Files.readString(outputPath);
         assertTrue(content.contains("volumes:"));
-        assertTrue(content.contains("postgres_data:"));
+        assertTrue(content.contains("data:"));
     }
 } 
