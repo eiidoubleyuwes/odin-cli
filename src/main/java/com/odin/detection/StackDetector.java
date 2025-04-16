@@ -65,7 +65,7 @@ public class StackDetector {
     private static final Map<String, String> LANGUAGE_PATTERNS = Map.ofEntries(
         entry("java", ".*\\.java$"),
         entry("python", ".*\\.py$"),
-        entry("javascript", ".*\\.js$"),
+        entry("javascript", ".*\\.js$|package\\.json$"),
         entry("typescript", ".*\\.ts$"),
         entry("go", ".*\\.go$"),
         entry("rust", ".*\\.rs$"),
@@ -94,7 +94,7 @@ public class StackDetector {
         entry("spring", "org\\.springframework|@SpringBootApplication"),
         entry("django", "django|DJANGO_SETTINGS_MODULE"),
         entry("flask", "flask|Flask\\(|from flask"),
-        entry("express", "express|Express\\("),
+        entry("nodejs", "express|Express\\(|require\\('express'\\)|import express"),
         entry("rails", "Rails|rails"),
         entry("laravel", "laravel|Laravel"),
         entry("actix", "actix_web|actix-web|HttpServer|use actix"),
@@ -113,7 +113,7 @@ public class StackDetector {
         entry("elasticsearch", "elasticsearch|elastic"),
         entry("cassandra", "cassandra|Cassandra"),
         entry("dynamodb", "dynamodb|DynamoDB"),
-        entry("sqlite", "sqlite|SQLite"),
+        entry("sqlalchemy", "sqlalchemy|SQLAlchemy"),
         entry("cockroachdb", "cockroach|CockroachDB"),
         entry("neo4j", "neo4j|Neo4j")
     );
@@ -205,12 +205,11 @@ public class StackDetector {
      * @throws IOException if there are file system access issues
      */
     private List<Path> listFiles(Path dir) throws IOException {
-        List<Path> files = new ArrayList<>();
         try (Stream<Path> stream = Files.walk(dir)) {
-            stream.filter(Files::isRegularFile)
-                  .forEach(files::add);
+            return stream
+                .filter(Files::isRegularFile)
+                .collect(Collectors.toList());
         }
-        return files;
     }
 
     /**
@@ -221,20 +220,15 @@ public class StackDetector {
      * @return The detected programming language
      */
     private String detectLanguage(List<Path> files) {
-        // Detect language based on file extensions and build files
         for (Path file : files) {
-            String fileName = file.getFileName().toString().toLowerCase();
-            if (fileName.endsWith(".js") || fileName.equals("package.json")) {
-                return "javascript";
-            } else if (fileName.endsWith(".py") || fileName.equals("requirements.txt")) {
-                return "python";
-            } else if (fileName.endsWith(".java") || fileName.equals("pom.xml")) {
-                return "java";
-            } else if (fileName.endsWith(".go") || fileName.equals("go.mod")) {
-                return "go";
+            String fileName = file.getFileName().toString();
+            for (Map.Entry<String, String> entry : LANGUAGE_PATTERNS.entrySet()) {
+                if (fileName.matches(entry.getValue())) {
+                    return entry.getKey();
+                }
             }
         }
-        return "";
+        return "unknown";
     }
 
     /**
@@ -245,20 +239,19 @@ public class StackDetector {
      * @return The detected framework name
      */
     private String detectFramework(List<Path> files) {
-        // Detect framework based on dependencies and imports
         for (Path file : files) {
             try {
                 String content = Files.readString(file);
                 for (Map.Entry<String, String> entry : FRAMEWORK_PATTERNS.entrySet()) {
-                    if (Pattern.compile(entry.getValue()).matcher(content).find()) {
+                    if (content.matches(".*" + entry.getValue() + ".*")) {
                         return entry.getKey();
                     }
                 }
             } catch (IOException e) {
-                logger.warn("Failed to read file: " + file, e);
+                logger.warn("Failed to read file: {}", file, e);
             }
         }
-        return "";
+        return "unknown";
     }
 
     /**
@@ -272,12 +265,12 @@ public class StackDetector {
         for (Path file : files) {
             String fileName = file.getFileName().toString();
             for (Map.Entry<String, String> entry : BUILD_TOOL_PATTERNS.entrySet()) {
-                if (Pattern.compile(entry.getValue()).matcher(fileName).find()) {
+                if (fileName.matches(entry.getValue())) {
                     return entry.getKey();
                 }
             }
         }
-        return "";
+        return "unknown";
     }
 
     /**
@@ -293,12 +286,12 @@ public class StackDetector {
             try {
                 String content = Files.readString(file);
                 for (Map.Entry<String, String> entry : DATABASE_PATTERNS.entrySet()) {
-                    if (Pattern.compile(entry.getValue()).matcher(content).find()) {
+                    if (content.matches(".*" + entry.getValue() + ".*")) {
                         detectedDatabases.add(entry.getKey());
                     }
                 }
             } catch (IOException e) {
-                logger.warn("Failed to read file: " + file, e);
+                logger.warn("Failed to read file: {}", file, e);
             }
         }
         return new ArrayList<>(detectedDatabases);
@@ -316,19 +309,19 @@ public class StackDetector {
         String framework = detectFramework(files);
         List<String> databases = detectDatabases(files);
 
-        // Set default framework port
-        if (DEFAULT_APP_PORTS.containsKey(framework)) {
-            ports.put("app", DEFAULT_APP_PORTS.get(framework));
-        } else {
-            ports.put("app", 8080); // Default fallback port
-        }
+        // Add framework port
+        DEFAULT_APP_PORTS.entrySet().stream()
+            .filter(e -> e.getKey().equals(framework))
+            .findFirst()
+            .ifPresent(e -> ports.put("app", e.getValue()));
 
-        // Set database ports
-        for (String db : databases) {
-            if (DEFAULT_DB_PORTS.containsKey(db)) {
-                ports.put(db, DEFAULT_DB_PORTS.get(db));
-            }
-        }
+        // Add database ports
+        databases.forEach(db -> 
+            DEFAULT_DB_PORTS.entrySet().stream()
+                .filter(e -> e.getKey().equals(db))
+                .findFirst()
+                .ifPresent(e -> ports.put(db, e.getValue()))
+        );
 
         return ports;
     }
@@ -346,12 +339,12 @@ public class StackDetector {
             try {
                 String content = Files.readString(file);
                 for (Map.Entry<String, String> entry : CLOUD_PATTERNS.entrySet()) {
-                    if (Pattern.compile(entry.getValue()).matcher(content).find()) {
+                    if (content.matches(".*" + entry.getValue() + ".*")) {
                         providers.add(entry.getKey());
                     }
                 }
             } catch (IOException e) {
-                logger.warn("Failed to read file: " + file, e);
+                logger.warn("Failed to read file: {}", file, e);
             }
         }
         return new ArrayList<>(providers);
@@ -370,12 +363,12 @@ public class StackDetector {
             try {
                 String content = Files.readString(file);
                 for (Map.Entry<String, String> entry : TESTING_FRAMEWORK_PATTERNS.entrySet()) {
-                    if (Pattern.compile(entry.getValue()).matcher(content).find()) {
+                    if (content.matches(".*" + entry.getValue() + ".*")) {
                         frameworks.add(entry.getKey());
                     }
                 }
             } catch (IOException e) {
-                logger.warn("Failed to read file: " + file, e);
+                logger.warn("Failed to read file: {}", file, e);
             }
         }
         return new ArrayList<>(frameworks);
