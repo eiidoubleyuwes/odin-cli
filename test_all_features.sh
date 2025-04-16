@@ -41,7 +41,7 @@ run_tests() {
 
 # Run tests with Gemini
 echo "Setting up Gemini API key..."
-export GEMINI_API_KEY=AIzaSyBcvtKJ7fDZVINKRnZHpN5DbRIL_uO2o4k
+export GEMINI_API_KEY=AIzdfghjkjhgfdfghjhgfghjhgfghjhgfghjhfdfghgfdfgh
 run_tests "gemini"
 
 # Print test results
